@@ -32,7 +32,78 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans" !important;
+}
+
+.selectedrt {
+  color: var(--red) !important;
+  cursor: pointer;
+}
+
+.notselectedrt {
+  cursor: pointer;
+}
+
+.paybtn {
+  background-color: var(--red);
+  color: #ffffff;
+  border: none;
+  outline: none;
+  height: 40px;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.triangle::before {
+  content: "";
+  display: block;
+  padding-top: 86.6%;
+  background-color: var(--red);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.whatsappwidget {
+  position: fixed;
+}
+
+._2qp0Z {
+  bottom: 2px !important;
+  right: 15px !important;
+  width: 58px !important;
+  height: 58px !important;
+}
+
+.name {
+  color: var(--red);
+}
+
+a {
+  color: #0066c0;
+}
+
+.selectedIcon {
+  color: var(--red);
+}
+
+.disabledTeam {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+:root {
+  --red: #03d47c;
+  --lightgreen: #a9e0c9;
+  --green: #1a3d32;
+  --black: #1a1a1a;
+  --white: #ffffff;
 }

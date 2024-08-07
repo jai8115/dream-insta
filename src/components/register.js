@@ -1,194 +1,97 @@
-import './register.css';
-import 'react-phone-number-input/style.css';
+import "./register.css";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { useState, react } from "react";
+import { URL } from "../constants/userConstants";
+import Otp from "./otp";
 
-import styled from '@emotion/styled';
-import { yupResolver } from '@hookform/resolvers/yup';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Typography } from '@mui/material';
-import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
-import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-
-import { LOGIN_SUCCESS, URL } from '../constants/userConstants';
-import Otp from './otp';
-
-const PHONE_REGEX = new RegExp(
-  /"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$"/gim,
-);
-
-const Err = styled.p`
-  color: red;
-`;
-
-export function Register() {
-  const {
-    user, isAuthenticated, loading, error,
-  } = useSelector(
-    (state) => state.user,
-  );
-  const dispatch = useDispatch();
-  const alert = useAlert();
-  const [err, setErr] = useState();
-  const [email, setEmail] = useState('');
+export const Register = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phonenumber, setPhonenumber] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [otp, setOtp] = useState();
-  const validationSchema = Yup.object().shape({
-    username: Yup.string()
-      .required('Username is required')
-      .min(6, 'Username must be at least 6 characters')
-      .max(20, 'Username must not exceed 20 characters'),
-    email: Yup.string().required('Email is required').email('Email is invalid'),
-    password: Yup.string()
-      .required('Password is required')
-      .min(6, 'Password must be at least 6 characters')
-      .max(40, 'Password must not exceed 40 characters'),
-    phoneInput: Yup.string(),
-    phoneNumber: Yup.string()
-      .required('Phone Number is required')
-      .matches(/^[0-9+-]+$/, 'It must be in numbers')
-      .min(10, 'Phone Number must be at least 10 characters')
-      .max(10, 'Phone Number must not exceed 10 characters'),
-    acceptTerms: Yup.bool().oneOf([true], 'Accept Terms is required'),
-  });
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(validationSchema),
-  });
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
-    }
-    if (error) {
-      alert.error(error);
-    }
-  }, [user, isAuthenticated, error]);
+  const handlesubmit = async (e) => {
+    e.preventDefault();
 
-  console.log(errors, 'errors');
-  const onSubmit = async (formData) => {
-    console.log(JSON.stringify(formData, null, 2));
-    // e.preventDefault();
-    setEmail(formData.email);
+    console.log(phonenumber, username, email, password);
     const data = await axios.post(`${URL}/auth/register`, {
-      ...formData,
+      username: username,
+      email: email,
+      phonenumber: phonenumber,
+      password: password,
     });
     console.log(data);
-    if (data.data.success) {
-      setErr(data.data.message);
-      alert.success(data.data.message);
-      setOpen(true);
-    } else {
-      alert.error(data.data.message);
-      setErr(data.data.message);
-    }
+    setOpen(true);
   };
 
   const handleotp = async () => {
-    try {
-      const data = await axios.post(`${URL}/auth/otp`, {
-        email,
-        otp,
-      });
-      setErr(data.data.message);
-      localStorage.setItem('token', data.data.token);
-      dispatch({ type: LOGIN_SUCCESS, payload: data.data.user });
-      alert.success(data.data.message);
-    } catch (e) {
-      alert.error(e);
-    }
+    const data = await axios.post(`${URL}/auth/otp`, {
+      username: username,
+      email: email,
+      phonenumber: phonenumber,
+      password: password,
+      otp: otp,
+    });
+    console.log(data);
   };
-
   return (
     <>
       <div className="registertopbar">
-        <ArrowBackIcon
-          style={{ marginRight: '20px' }}
-          onClick={() => navigate(-1)}
-        />
+        <ArrowBackIcon style={{ marginRight: "2vw" }} onClick={()=>navigate(-1)}/>
         register & play
       </div>
 
       <div className="register">
-        <Paper style={{ padding: '5px 5px' }}>
-          <form onSubmit={handleSubmit(onSubmit)} className="registerform">
+        <Paper style={{ padding: "2vh 2vw" }}>
+          <form onSubmit={handlesubmit} className="registerform">
             <TextField
-              required
-              id="email"
-              name="email"
-              label="Email"
+              placeholder="Email"
               variant="standard"
-              fullWidth
-              margin="dense"
-              {...register('email')}
-              error={!!errors.email}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
             />
-            <Typography variant="inherit" color="textSecondary">
-              {errors.email?.message}
-            </Typography>
             <TextField
-              required
-              id="username"
-              name="username"
-              label="Name"
+              placeholder="name"
               variant="standard"
-              fullWidth
-              margin="dense"
-              {...register('username')}
-              error={!!errors.username}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
-            <Typography variant="inherit" color="textSecondary">
-              {errors.username?.message}
-            </Typography>
             <TextField
-              required
-              id="phoneNumber"
-              name="phoneNumber"
-              label="Phone Number"
+              placeholder="Phonenumber"
               variant="standard"
-              fullWidth
-              margin="dense"
-              {...register('phoneNumber')}
-              error={!!errors.phoneNumber}
+              value={phonenumber}
+              onChange={(e) => setPhonenumber(e.target.value)}
+              type="phone"
             />
-            <Typography variant="inherit" color="textSecondary">
-              {errors.phoneNumber?.message}
-            </Typography>
+
             <TextField
-              required
-              id="password"
-              name="password"
-              label="Password"
+              placeholder="Password"
               variant="standard"
-              fullWidth
-              margin="dense"
-              {...register('password')}
-              error={!!errors.password}
+              id="fullWidth"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            <Typography variant="inherit" color="textSecondary">
-              {errors.password?.message}
-            </Typography>
             <Button
               variant="contained"
               type="submit"
               disableElevation
-              style={{ backgroundColor: '#03d47c' }}
+              style={{ backgroundColor: "#24B937" }}
             >
               Register
             </Button>
           </form>
-          <Link to="/forgot-password">forgot password</Link>
+          forgot password
         </Paper>
         <Link to="/login">Aleady a user?Log in</Link>
       </div>
@@ -198,10 +101,9 @@ export function Register() {
         otp={otp}
         setOtp={setOtp}
         handleotp={handleotp}
-        err={err}
       />
     </>
   );
-}
+};
 
 export default Register;

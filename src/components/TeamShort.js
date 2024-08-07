@@ -1,11 +1,21 @@
-import './home.css';
-import './create.css';
-
-import styled from '@emotion/styled';
-import { Grid } from '@mui/material';
-import { useEffect, useState } from 'react';
-
-import Team from './Team';
+import SportsCricketIcon from "@mui/icons-material/SportsCricket";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import "./home.css";
+import "./create.css";
+import Steppr from "./stepper";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Bottomnav from "./bottomnavbar";
+import { SettingsApplicationsTwoTone } from "@mui/icons-material";
+import { style } from "@mui/system";
+import styled from "@emotion/styled";
+import { Grid } from "@mui/material";
+import { URL } from "../constants/userConstants";
 
 const CaptainSelector = styled.div``;
 const Player = styled.div`
@@ -77,7 +87,7 @@ const NextButtonContainer = styled.div`
 `;
 
 const NextButton = styled.button`
-  background-color: var(--green);
+  background-color: #008a36;
   color: #ffffff;
   border: none;
   border-top-left-radius: 20px;
@@ -94,7 +104,7 @@ const NextButton = styled.button`
 `;
 
 const PrevButton = styled.button`
-  background-color: var(--black);
+  background-color: #000000;
   color: #ffffff;
   border: none;
   border-top-left-radius: 20px;
@@ -124,7 +134,7 @@ const Top = styled.div`
   justify-content: space-evenly;
   align-items: center;
   background-repeat: repeat !important;
-  background-color: var(--green);
+  background-color: #008a36;
   background-size: 100% !important;
   color: #ffffff;
   text-transform: uppercase;
@@ -164,7 +174,7 @@ const PlayerP = styled.div`
 const Title = styled.p`
   position: absolute;
   bottom: 0px;
-  background-color: var(--black);
+  background-color: #000000;
   color: #ffffff;
   padding: 2px 5px;
   border-radius: 2px;
@@ -188,7 +198,7 @@ const Each = styled(Grid)`
   span {
     font-size: 16px !important;
     font-weight: 600 !important;
-    color: var(--black);
+    color: #000000;
   }
 `;
 
@@ -196,13 +206,12 @@ const EachTeam = styled.div`
   box-shadow: 5px 5px 4px 2px #cecccc;
   border-radius: 5px;
   overflow: hidden;
-  margin: 15px 0;
 `;
 const Captain = styled.div`
   font-size: 12px;
   text-transform: capitalize;
   background-color: #ffffff;
-  color: var(--black);
+  color: #000000;
   border-radius: 5px;
   padding: 0 4px;
   display: flex;
@@ -213,7 +222,7 @@ const Captain = styled.div`
 const VCaptain = styled.div`
   font-size: 12px;
   text-transform: capitalize;
-  background-color: var(--black);
+  background-color: #000000;
   color: #ffffff;
   border-radius: 5px;
   padding: 0 4px;
@@ -228,10 +237,10 @@ const CaptainsContainer = styled.div`
 
 const CaptainI = styled.div`
   position: absolute;
-  border: 3px solid var(--black);
+  border: 3px solid #000000;
   padding: 2px 2px;
-  left: -20%;
-  top: -20%;
+  left: -25%;
+  top: -25%;
   border-radius: 50%;
   font-size: 10px;
   display: flex;
@@ -240,7 +249,7 @@ const CaptainI = styled.div`
   height: 15px;
   width: 15px;
   background-color: #ffffff;
-  color: var(--black);
+  color: #000000;
 `;
 
 const VcaptainI = styled.div`
@@ -256,21 +265,33 @@ const VcaptainI = styled.div`
   justify-content: center;
   height: 15px;
   width: 15px;
-  background-color: var(--black);
+  background-color: #000000;
 `;
-export function TeamShort({
-  match, match_info, players, id, plo,
-}) {
+export const TeamShort = ({ players, id, plo }) => {
+  const [upcoming, setUpcoming] = useState([]);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
+  const [live, setLive] = useState([]);
+  const [past, setPast] = useState([]);
+  const [save, setSave] = useState(false);
   const [captains, setCaptains] = useState([]);
   const [matchinfo, setMatchinfo] = useState([]);
   useEffect(() => {
     async function filterDifferent() {
-      const h = match.teamHomePlayers.filter((f) => selectedPlayers.some((s) => f.playerId == s.playerId)).length;
-      const o = match.teamAwayPlayers.filter((f) => selectedPlayers.some((s) => f.playerId == s.playerId)).length;
-      const a = [
-        { awayCode: match_info.teamAwayCode, number: o },
-        { homeCode: match_info.teamHomeCode, number: h },
+      const data = await axios.get(`${URL}/getplayers/${id}`);
+
+      let h = data.data.players.teamHomePlayers.filter((f) => {
+        return selectedPlayers.some((s) => {
+          return f.playerId === s.playerId;
+        });
+      }).length;
+      let o = data.data.players.teamAwayPlayers.filter((f) => {
+        return selectedPlayers.some((s) => {
+          return f.playerId === s.playerId;
+        });
+      }).length;
+      let a = [
+        { awayCode: data.data.matchdetails.teamAwayCode, number: o },
+        { homeCode: data.data.matchdetails.teamHomeCode, number: h },
       ];
       setMatchinfo([...a]);
     }
@@ -279,39 +300,146 @@ export function TeamShort({
 
   useEffect(() => {
     async function filterDifferent() {
-      const cap = match.teamAwayPlayers
-        .concat(match.teamHomePlayers)
-        .filter((f) => f.playerId == plo.captainId);
-      const vcap = match.teamAwayPlayers
-        .concat(match.teamHomePlayers)
-        .filter((f) => f.playerId == plo.viceCaptainId);
+      const data = await axios.get(`${URL}/getplayers/${id}`);
+      let cap = data.data.players.teamAwayPlayers
+        .concat(data.data.players.teamHomePlayers)
+        .filter((f) => {
+          return f.playerId == plo.captainId;
+        });
+      let vcap = data.data.players.teamAwayPlayers
+        .concat(data.data.players.teamHomePlayers)
+        .filter((f) => {
+          return f.playerId == plo.viceCaptainId;
+        });
 
       setCaptains([...cap, ...vcap]);
     }
     filterDifferent();
-  }, [plo, match]);
+  }, [plo]);
+
   useEffect(() => {
-    const pl = players.map((obj) => ({
+    let pl = players.map((obj) => ({
       ...obj,
     }));
     setSelectedPlayers([...pl]);
   }, [id]);
 
+  const handleCaptain = (i) => {
+    let op = players.map((p) => {
+      p.isCaptain = false;
+      return p;
+    });
+    let po = op.map((p) => {
+      if (p._id === i) {
+        p.isCaptain = true;
+      }
+      return p;
+    });
+    setSelectedPlayers([...po]);
+  };
+
+  const handleViceCaptain = (i) => {
+    let op = players.map((p) => {
+      p.isViceCaptain = false;
+      return p;
+    });
+    let po = op.map((p) => {
+      if (p._id === i) {
+        p.isViceCaptain = true;
+      }
+      return p;
+    });
+    setSelectedPlayers([...po]);
+  };
+  const handleSave = async () => {
+    setSave(true);
+  };
+
+  const isCandVcselected = () => {
+    let a = selectedPlayers.find((s) => s.isCaptain);
+    let b = selectedPlayers.find((s) => s.isViceCaptain);
+    return a && b;
+  };
+  console.log(matchinfo, captains, "cap");
   return (
-    <Grid item md={4} lg={4} xs={12} sm={12}>
+    <div>
       {players ? (
-        <Team
-          matchinfo={matchinfo}
-          captains={captains}
-          selectedPlayers={selectedPlayers}
-          matchId={id}
-          teamId={plo._id}
-        />
+        <EachTeam>
+          {matchinfo.length > 0 && captains.length > 0 && (
+            <Top>
+              <div>
+                <h3>{matchinfo[0].awayCode}</h3>
+                <p>{matchinfo[0].number}</p>
+              </div>
+              <div>
+                <h3>{matchinfo[1].homeCode}</h3>
+                <p>{matchinfo[1].number}</p>
+              </div>
+              <CaptainsContainer>
+                <CaptainI>
+                  <span>c</span>
+                </CaptainI>
+                <img src={captains[0].image} alt="" />
+
+                <Captain>
+                  <p>
+                    {captains[0].playerName.split(" ")[0].charAt(0) +
+                      " " +
+                      captains[0].playerName.split(" ")[1]}
+                  </p>
+                </Captain>
+              </CaptainsContainer>
+              <CaptainsContainer>
+                <VcaptainI>vc</VcaptainI>
+                <img src={captains[1].image} alt="" />
+                <VCaptain>
+                  <p>
+                    {captains[1].playerName.split(" ")[0].charAt(0) +
+                      " " +
+                      captains[1].playerName.split(" ")[1]}
+                  </p>
+                </VCaptain>
+              </CaptainsContainer>
+            </Top>
+          )}
+          <Bottom container spacing={1}>
+            <Each item xs={3} sm={3}>
+              WK
+              <span>
+                {
+                  selectedPlayers.filter((f) => f.position === "wicketkeeper")
+                    .length
+                }
+              </span>
+            </Each>
+            <Each item xs={3} sm={3}>
+              BAT{" "}
+              <span>
+                {selectedPlayers.filter((f) => f.position === "batsman").length}{" "}
+              </span>
+            </Each>
+            <Each item xs={3} sm={3}>
+              AR{" "}
+              <span>
+                {
+                  selectedPlayers.filter((f) => f.position === "allrounder")
+                    .length
+                }{" "}
+              </span>
+            </Each>
+            <Each item xs={3} sm={3}>
+              BOWL{" "}
+              <span>
+                {selectedPlayers.filter((f) => f.position === "bowler").length}
+              </span>
+            </Each>
+          </Bottom>
+        </EachTeam>
       ) : (
-        <h1>select team</h1>
+        <h1>ok</h1>
       )}
-    </Grid>
+    </div>
   );
-}
+};
 
 export default TeamShort;

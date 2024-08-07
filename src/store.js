@@ -1,20 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { positions, transitions } from 'react-alert';
-import { combineReducers } from 'redux';
-import thunk from 'redux-thunk';
-
-import { matchReducer } from './reducers/matchReducer';
-import { userReducer } from './reducers/userReducer';
-
-const options = {
-  timeout: 5000,
-  position: positions.BOTTOM_CENTER,
-  transition: transitions.SCALE,
-};
+import { userReducer } from "./reducers/userReducer";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import { composeWithDevTools } from "redux-devtools-extension";
+import { configureStore } from "@reduxjs/toolkit";
 
 const reducer = combineReducers({
   user: userReducer,
-  match: matchReducer,
 });
 
 const middleware = [thunk];

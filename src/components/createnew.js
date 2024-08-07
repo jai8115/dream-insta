@@ -5,6 +5,12 @@ import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import RemoveCircleOutlineRoundedIcon from "@mui/icons-material/RemoveCircleOutlineRounded";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import BasicTabs from "./tabs";
+import CategoryTabs from "./playerscategory";
 import styled from "@emotion/styled";
 import "./create.css";
 import Steppr from "./stepper";
@@ -21,6 +27,25 @@ import {
 import { useParams } from "react-router-dom";
 import { URL } from "../constants/userConstants";
 
+const Container = styled.div`
+  position: relative;
+  .MuiBox-root {
+    padding: 0 !important;
+  }
+`;
+
+const PlayersIndicator = styled(Grid)`
+  font-size: 12px;
+  font-family: "Open Sans";
+  font-weight: 500;
+  margin: 0 auto;
+  color: #9c9898;
+  p {
+    font-weight: 700 !important;
+    font-size: 14px;
+    color: #ffffff;
+  }
+`;
 const PlayersContainer = styled.div``;
 const Player = styled.div`
   display: flex;
@@ -40,6 +65,7 @@ const NoPlayers = styled(Grid)`
   background-color: #000000;
   height: 150px;
   margin: 0 auto;
+  color: #ffffff;
 `;
 const NoPlayer = styled.div`
   background-color: green;
@@ -99,10 +125,16 @@ const RemoveButton = styled.button`
 `;
 
 const NextButtonContainer = styled.div`
+  left: 0%;
+  z-index: 1000000000000000000000000;
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
   position: fixed;
   bottom: 15%;
-  left: 25%;
-  z-index: 1000000000000000000000000;
 `;
 
 const NextButton = styled.button`
@@ -121,30 +153,58 @@ const NextButton = styled.button`
   z-index: 1000000000000000000000000;
   box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
 `;
+
+const PrevButton = styled.button`
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  padding: 10px 10px;
+  border: none;
+  outline: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  z-index: 1000000000000000000000000;
+  box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
+  display: flex;
+  align-items: center;
+  width: 230px;
+  justify-content: space-evenly;
+  white-space: nowrap;
+`;
+
+const Code = styled.p`
+  text-transform: uppercase;
+  color: #9c9898 !important;
+`;
 export const CreateTeam = () => {
-  const PlayersNumber = new Array(11).fill(null);
-  const [TeamArray, setTeamArray] = useState(new Array(11).fill(null));
-  const [upcoming, setUpcoming] = useState([]);
+  const [match, setMatch] = useState(null);
   const { id } = useParams();
-  const [live, setLive] = useState([]);
-  const [past, setPast] = useState([]);
   const [players, setPlayers] = useState([]);
   const [next, setNext] = useState(false);
   useEffect(() => {
     async function getupcoming() {
-      const data = await axios.get(`${URL}/getplayers/${id}`);
-      console.log(data);
+      console.log(id, "id");
+      if (id) {
+        const data = await axios.get(`${URL}/getplayers/${id}`);
+        console.log(data);
 
-      let players = data.data.players.teamAwayPlayers
-        .concat(data.data.players.teamHomePlayers)
-        .map((obj) => ({
-          ...obj,
-          isSelected: false,
-        }));
-      setPlayers([...players]);
+        let players = data.data.players.teamAwayPlayers
+          .concat(data.data.players.teamHomePlayers)
+          .map((obj) => ({
+            ...obj,
+            isSelected: false,
+          }));
+        setPlayers([...players]);
+        setMatch(data.data.matchdetails);
+      }
     }
     getupcoming();
-  }, []);
+  }, [id]);
+
   console.log(players);
   const handleClick = (i) => {
     let po = players.map((p) => {
@@ -172,10 +232,28 @@ export const CreateTeam = () => {
   };
 
   return (
-    <>
+    <Container>
       {!next ? (
         <>
           <NoPlayers container spacing={2}>
+            <PlayersIndicator container spacing={2}>
+              <Grid item xs={3} sm={3}>
+                Playersiooo
+                <p>{players.filter((p) => p.isSelected).length}/11</p>
+              </Grid>
+              <Grid item xs={3} sm={3}>
+                <Code>{match?.teamAwayCode}</Code>
+                <p>1</p>
+              </Grid>
+              <Grid item xs={3} sm={3}>
+                <Code>{match?.teamHomeCode}</Code>
+                <p>1</p>
+              </Grid>
+              <Grid item xs={3} sm={3}>
+                Credits Left
+                <p>83.5</p>
+              </Grid>
+            </PlayersIndicator>
             {players.filter((k) => k.isSelected === true).length <= 11 &&
               players
                 .filter((k) => k.isSelected === true)
@@ -196,40 +274,13 @@ export const CreateTeam = () => {
                   </Grid>
                 ))}
           </NoPlayers>
-          <PlayersList>
-            {players.length > 0
-              ? players.map((p) => (
-                  <EachPlayer
-                    className={p.isSelected ? "selected" : "notselected"}
-                  >
-                    <img src={p.image} alt="" />
-                    <h1>{p.playerName}</h1>
-                    {p.isSelected ? (
-                      <RemoveButton onClick={() => handleRemove(p._id)}>
-                        <RemoveCircleOutlineRoundedIcon />
-                      </RemoveButton>
-                    ) : (
-                      <AddButton
-                        onClick={() => handleClick(p._id)}
-                        disabled={
-                          players.filter((k) => k.isSelected === true).length >=
-                          11
-                        }
-                        className={
-                          players.filter((k) => k.isSelected === true).length >=
-                          11
-                            ? "disabled"
-                            : "notdisabled"
-                        }
-                      >
-                        <AddCircleOutlineRoundedIcon />
-                      </AddButton>
-                    )}
-                  </EachPlayer>
-                ))
-              : null}
-          </PlayersList>
+          <CategoryTabs players={players} setPlayers={setPlayers} />
           <NextButtonContainer>
+            <PrevButton>
+              <RemoveRedEyeOutlinedIcon />
+              Preview / Lineup
+              <GroupsRoundedIcon />
+            </PrevButton>
             <NextButton
               disabled={
                 players.filter((k) => k.isSelected === true).length < 11
@@ -249,7 +300,7 @@ export const CreateTeam = () => {
       ) : (
         <Next players={players.filter((k) => k.isSelected === true)} />
       )}
-    </>
+    </Container>
   );
 };
 

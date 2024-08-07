@@ -5,6 +5,8 @@ import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import NotificationAddOutlinedIcon from "@mui/icons-material/NotificationAddOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import PeopleIcon from "@mui/icons-material/People";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { Button, Drawer } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./home.css";
@@ -14,6 +16,8 @@ import axios from "axios";
 import Bottomnav from "./bottomnavbar";
 import { SettingsApplicationsTwoTone } from "@mui/icons-material";
 import styled from "@emotion/styled";
+import Navbar from "./navbar";
+import { URL } from "../constants/userConstants";
 import { useSelector } from "react-redux";
 
 const RightSide = styled.div`
@@ -25,14 +29,6 @@ const RightSide = styled.div`
 
 const Account = styled.h3`
   font-size: 12px;
-  border-radius: 50%;
-  background-color: #ffffff;
-  color: red;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 const Center = styled.div`
   display: flex;
@@ -74,14 +70,16 @@ const DeatilTop = styled.div`
   }
 `;
 
-export const Navbar = () => {
+export const Home = () => {
   const { user, isAuthenticated, loading, error } = useSelector(
     (state) => state.user
   );
+  console.log(user, "user");
   const [upcoming, setUpcoming] = useState([]);
   const [live, setLive] = useState([]);
   const [past, setPast] = useState([]);
   const [open, setOpen] = useState(false);
+  console.log(URL, "url");
   const navigate = useNavigate();
   useEffect(() => {
     async function getupcoming() {
@@ -93,67 +91,67 @@ export const Navbar = () => {
     }
     getupcoming();
   }, []);
+  useEffect(() => {
+    const servertoken =
+      localStorage.getItem("token") && localStorage.getItem("token");
+    if (!servertoken) {
+      navigate("/login");
+    }
+  }, []);
 
   const handleClick = () => {
     setOpen(true);
   };
   return (
     <>
-      <div className="logintopbar">
-        <Account>{user?.username && user?.username.charAt(0)}</Account>
-        <Center>
-          <EmojiEventsOutlinedIcon style={{ marginRight: "1vw" }} />
-          Dream11
-        </Center>
-        <RightSide>
-          <NotificationAddOutlinedIcon
-            style={{ marginRight: "10px", cursor: "pointer" }}
-          />
-          <AccountBalanceWalletOutlinedIcon
-            onClick={() => handleClick()}
-            style={{ cursor: "pointer" }}
-          />
-        </RightSide>
+      <Navbar />
+      <div className="matches">
+        {live
+          ? live.map((u) => (
+              <div
+                className="matchcontainer"
+                onClick={() => navigate(`/contests/${u.id}`)}
+              >
+                <div className="match">
+                  <h5
+                    style={{
+                      color: "rgb(233,233,233)",
+                      height: "3vh",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {u.away.code} vs {u.home.code}
+                  </h5>
+                  <div className="matchcenter">
+                    <div className="matchlefts">
+                      <img src={u.teamAwayFlagUrl} alt="" width="40" />
+                      <h5>{u.away.code}</h5>
+                    </div>
+                    <h5 className="time">{u.livestatus}</h5>
+                    <div className="matchrights">
+                      <h5> {u.home.code}</h5>
+                      <img src={u.teamHomeFlagUrl} alt="" width="40" />
+                    </div>
+                  </div>
+                </div>
+                <div className="bottom">
+                  <div>
+                    <div className="mega">Mega</div>
+                    <div className="meg">
+                      <h5>59 crores</h5>
+                    </div>
+                  </div>
+                  <div className="icon">
+                    <PersonOutlineOutlinedIcon style={{ color: "#d6d1d1" }} />
+                  </div>
+                </div>
+              </div>
+            ))
+          : null}
       </div>
-      <Drawer anchor="top" open={open} onClose={() => setOpen(false)}>
-        <DeatilTop>
-          <p>total balance</p>
-          <h5>₹ {user && user.wallet}</h5>
-        </DeatilTop>
-        <AddButton>add cash</AddButton>
-        <Deatil>
-          <p>Amount added</p>
-          <h5>₹ 0</h5>
-        </Deatil>
-        <Deatil>
-          <p>winnings</p>
-          <h5>₹ 0</h5>
-        </Deatil>
-        <Deatil>
-          <p>cash bonus</p>
-          <h5>₹ 0</h5>
-        </Deatil>
-      </Drawer>
-      <div className="hometop">
-        <div className="hometopicon selectgame">
-          <SportsCricketIcon style={{ color: "#C41E22" }} />
-          <h5>Cricket</h5>
-        </div>
-        <div className="hometopicon">
-          <SportsSoccerIcon />
-          <h5>Football</h5>
-        </div>
-        <div className="hometopicon">
-          <SportsBasketballIcon />
-          <h5>Basketball</h5>
-        </div>
-        <div className="hometopicon">
-          <SportsHockeyIcon />
-          <h5>Hockey</h5>
-        </div>
-      </div>
+      <Bottomnav />
     </>
   );
 };
 
-export default Navbar;
+export default Home;

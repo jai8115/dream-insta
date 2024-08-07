@@ -4,7 +4,8 @@
 }
 
 .selected {
-  background-color: var(--lightgreen);
+  background-color: #fef4de;
+  border-top: 1px solid #d7d6d4;
   border-bottom: 1px solid #d7d6d4;
 }
 
@@ -21,17 +22,17 @@
   align-items: center;
 }
 .captain {
-  background-color: var(--black) !important;
+  background-color: #000000 !important;
   color: #ffffff !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
   border: none;
   outline: none;
-  border: 2px solid var(--black) !important;
+  border: 2px solid #000000 !important;
 }
 .selectedc {
-  background-color: var(--green) !important;
+  background-color: #008a36 !important;
 }
 .not {
   background-color: grey !important;

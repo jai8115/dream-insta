@@ -1,19 +1,30 @@
-import './home.css';
-import './create.css';
-
-import styled from '@emotion/styled';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
-import Brightness1Icon from '@mui/icons-material/Brightness1';
-import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
-import NotificationAddOutlinedIcon from '@mui/icons-material/NotificationAddOutlined';
-import WestIcon from '@mui/icons-material/West';
-import { Grid, Slider } from '@mui/material';
-import { useState } from 'react';
-
-import BasicTabs from './ContestTabs';
+import SportsCricketIcon from "@mui/icons-material/SportsCricket";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import Brightness1Icon from "@mui/icons-material/Brightness1";
+import Tab from "@mui/material/Tab";
+import "./home.css";
+import "./create.css";
+import Steppr from "./stepper";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Bottomnav from "./bottomnavbar";
+import { SettingsApplicationsTwoTone } from "@mui/icons-material";
+import NotificationAddOutlinedIcon from "@mui/icons-material/NotificationAddOutlined";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import WestIcon from "@mui/icons-material/West";
+import styled from "@emotion/styled";
+import SavedTeam from "./savedteam";
+import BasicTabs from "./tabsdata";
+import { Grid, Slider } from "@mui/material";
+import { URL } from "../constants/userConstants";
 
 const Top = styled.div`
-  background-color: var(--black);
+  background-color: #000000;
   color: #ffffff;
   display: flex;
   justify-content: space-between;
@@ -43,11 +54,11 @@ const RightSide = styled.div`
 
 const Container = styled.div`
   .MuiTabs-indicator {
-    background-color: var(--red) !important;
+    background-color: #ec1801 !important;
     padding: 1px 0;
   }
   .Mui-selected {
-    color: var(--black) !important;
+    color: #000000 !important;
     text-transform: capitalize;
     font-weight: 600;
   }
@@ -70,7 +81,7 @@ const Contest = styled.div`
   }
   .MuiSlider-track {
     border: none;
-    background-color: var(--red);
+    background-color: #ec1801;
     border-radius: inherit;
   }
   .MuiSlider-root {
@@ -92,7 +103,7 @@ const First = styled.div`
 `;
 
 const FreeButton = styled.button`
-  background-color: var(--green);
+  background-color: #008a36;
   text-transform: uppercase;
   color: #ffffff;
   padding: 10px 30px;
@@ -114,9 +125,9 @@ const Last = styled.div`
   color: #888;
 `;
 
-const tabs = [{ label: 'winnings' }, { label: 'leaderboard' }];
+const tabs = [{ label: "winnings" }, { label: "leaderboard" }];
 
-export function JoinedContests({ players }) {
+export const JoinedContests = ({ players }) => {
   const [upcoming, setUpcoming] = useState([]);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [live, setLive] = useState([]);
@@ -163,7 +174,7 @@ export function JoinedContests({ players }) {
             <Last>
               ₹66
               <EmojiEventsOutlinedIcon
-                style={{ margin: '0 15px', marginBottom: '3px' }}
+                style={{ margin: "0 15px", marginBottom: "3px" }}
               />
               25% Single
             </Last>
@@ -173,6 +184,6 @@ export function JoinedContests({ players }) {
       <BasicTabs tabs={tabs} />
     </Container>
   );
-}
+};
 
 export default JoinedContests;

@@ -1,18 +1,19 @@
-import './home.css';
-
-import styled from '@emotion/styled';
-import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
-import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
-import SportsCricketIcon from '@mui/icons-material/SportsCricket';
-import SportsHockeyIcon from '@mui/icons-material/SportsHockey';
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-
-import { API } from '../actions/userAction';
-import { URL } from '../constants/userConstants';
-import Bottomnav from './navbar/bottomnavbar';
-import Steppr from './stepper';
+import SportsCricketIcon from "@mui/icons-material/SportsCricket";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import styled from "@emotion/styled";
+import "./home.css";
+import Steppr from "./stepper";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Bottomnav from "./bottomnavbar";
+import { URL } from "../constants/userConstants";
+import {
+  PlaylistAddCheckCircleSharp,
+  SettingsApplicationsTwoTone,
+} from "@mui/icons-material";
 
 const PlayersContainer = styled.div``;
 const Player = styled.div`
@@ -24,32 +25,26 @@ const Player = styled.div`
     width: 150px !important;
   }
 `;
-export function Players() {
-  const {
-    user, isAuthenticated, loading, error,
-  } = useSelector(
-    (state) => state.user,
-  );
+export const Players = () => {
   const [upcoming, setUpcoming] = useState([]);
   const [live, setLive] = useState([]);
   const [past, setPast] = useState([]);
   const [players, setPlayers] = useState([]);
   useEffect(() => {
     async function getupcoming() {
-      const data = await API.get(`${URL}/homeMatches`);
-      const datas = await API.get(`${URL}/getplayers`);
-      console.log(datas);
+      const data = await axios.get(`${URL}/home`);
+      console.log(data);
       setUpcoming(data.data.upcoming.results);
       setLive(data.data.live.results);
       setPast(data.data.past.results);
       setPlayers(data.data.players);
     }
     getupcoming();
-  }, [user]);
+  }, []);
   return (
     <>
       <div className="logintopbar">
-        <EmojiEventsOutlinedIcon style={{ marginRight: '1vw' }} />
+        <EmojiEventsOutlinedIcon style={{ marginRight: "1vw" }} />
         Dream 11
       </div>
       <div className="stepper">
@@ -57,7 +52,7 @@ export function Players() {
       </div>
       <div className="hometop">
         <div className="hometopicon selectgame">
-          <SportsCricketIcon style={{ color: '#C41E22' }} />
+          <SportsCricketIcon style={{ color: "#C41E22" }} />
           <h5>Cricket</h5>
         </div>
         <div className="hometopicon">
@@ -81,16 +76,16 @@ export function Players() {
       <div className="matches">
         {players.length > 0
           ? players.map((u) => (
-            <Player>
-              <h1>{u.name}</h1>
-              <img src={u.image} alt="" />
-            </Player>
-          ))
+              <Player>
+                <h1>{u.name}</h1>
+                <img src={u.image} alt="" />
+              </Player>
+            ))
           : null}
       </div>
       <Bottomnav />
     </>
   );
-}
+};
 
 export default Players;

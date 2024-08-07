@@ -1,92 +1,65 @@
-import './register.css';
+import "./register.css";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import { useState, react } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useDispatch, useSelector } from "react-redux";
+import { URL } from "../constants/userConstants";
+import { login } from "../actions/userAction";
 
-import styled from '@emotion/styled';
-import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
-import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import { useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-
-import { login } from '../actions/userAction';
-
-const Err = styled.p`
-  color: red;
-`;
-
-export function Login() {
-  const {
-    user, isAuthenticated, loading, error,
-  } = useSelector(
-    (state) => state.user,
-  );
+export const Login = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const alert = useAlert();
-  const [password, setPassword] = useState('');
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
-    }
-    if (error) {
-      alert.error(error);
-    }
-  }, [user, isAuthenticated, error]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handlesubmit = async (e) => {
     e.preventDefault();
-    const formdata = { email, password };
+    console.log(email, password);
+    const formdata = { email: email, password: password };
     dispatch(login(formdata));
   };
   return (
     <>
       <div className="logintopbar">
-        <EmojiEventsOutlinedIcon style={{ marginRight: '1vw' }} />
+        <EmojiEventsOutlinedIcon style={{ marginRight: "1vw" }} />
         Dream 11
       </div>
 
       <div className="register">
-        <Paper style={{ padding: '2vh 2vw' }}>
-          <h5 style={{ marginBottom: '10px' }}>LOG IN & PLAY</h5>
+        <Paper style={{ padding: "2vh 2vw" }}>
+          <h5>LOG IN & PLAY</h5>
           <div
             style={{
-              display: 'flex',
-              width: '100%',
-              justifyContent: 'space-evenly',
+              display: "flex",
+              width: "100%",
+              justifyContent: "space-evenly",
             }}
           >
             <Button
               variant="contained"
               style={{
-                backgroundColor: '#FFFFFF',
-                color: 'black',
-                width: '50%',
-                marginRight: '1vw',
-                height: '30px',
+                backgroundColor: "#FFFFFF",
+                color: "black",
+                width: "50%",
+                marginRight: "1vw",
               }}
-              onClick={() => alert('not working yet,only google login is working')}
             >
-              <img src="./github.svg" alt="" />
-              Github
+              Facebook
             </Button>
             <Button
               variant="contained"
               elevation="2"
               style={{
-                backgroundColor: '#FFFFFF',
-                color: 'black',
-                width: '50%',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
+                backgroundColor: "#FFFFFF",
+                color: "black",
+                width: "50%",
               }}
-              onClick={() => navigate('/googlelogin')}
             >
-              <img src="./google.svg" alt="" style={{ marginRight: '5px' }} />
               Google
             </Button>
           </div>
@@ -115,17 +88,17 @@ export function Login() {
               className="itseveryday"
               variant="contained"
               disableElevation
-              style={{ backgroundColor: '#03d47c' }}
+              style={{ backgroundColor: "#24B937" }}
             >
               Log in
             </Button>
           </form>
-          <Link to="/forgot-password">forgot password</Link>
+          Forgot Password
           <Link to="/register">Dont have a account?Sign up</Link>
         </Paper>
       </div>
     </>
   );
-}
+};
 
 export default Login;

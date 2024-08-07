@@ -1,19 +1,23 @@
-import './home.css';
-import './create.css';
-
-import styled from '@emotion/styled';
-import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
-import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import { useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
-import { useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-
-import { API } from '../actions/userAction';
-import { URL } from '../constants/userConstants';
-import { getImgurl } from '../utils/img_url';
-import Loader from './loader';
-import SavedTeam from './savedteam';
+import SportsCricketIcon from "@mui/icons-material/SportsCricket";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import { useSelector } from "react-redux";
+import "./home.css";
+import "./create.css";
+import Steppr from "./stepper";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Bottomnav from "./bottomnavbar";
+import { SettingsApplicationsTwoTone } from "@mui/icons-material";
+import { style } from "@mui/system";
+import styled from "@emotion/styled";
+import SavedTeam from "./savedteam";
+import { useParams,useNavigate } from "react-router-dom";
+import { URL } from "../constants/userConstants";
 
 const CaptainSelector = styled.div``;
 const Player = styled.div`
@@ -78,14 +82,14 @@ const NextButtonContainer = styled.div`
   position: fixed;
   bottom: 8%;
   left: 0%;
-  z-index: 1000000000000000000000;
+  z-index: 1000000000000000000000000;
   display: flex;
   justify-content: space-evenly;
   width: 100%;
 `;
 
 const NextButton = styled.button`
-  background-color: var(--green);
+  background-color: #008a36;
   color: #ffffff;
   border: none;
   border-top-left-radius: 20px;
@@ -102,7 +106,7 @@ const NextButton = styled.button`
 `;
 
 const PrevButton = styled.button`
-  background-color: var(--black);
+  background-color: #000000;
   color: #ffffff;
   border: none;
   border-top-left-radius: 20px;
@@ -136,49 +140,50 @@ const Description = styled.div`
     margin-top: 17px;
   }
 `;
-export function Captain({ players, editMode, teamId }) {
-  const { user } = useSelector((state) => state.user);
+export const Captain = ({ players }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.user);
   console.log(user);
-  const alert = useAlert();
-  const [loading, setLoading] = useState(false);
+  const [upcoming, setUpcoming] = useState([]);
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [vicecaptainId, setVicecaptainId] = useState(null);
   const [captainId, setCaptainId] = useState(null);
-  const navigate = useNavigate();
+  const navigate =useNavigate();
+  const [live, setLive] = useState([]);
+  const [past, setPast] = useState([]);
   const { id } = useParams();
   const [save, setSave] = useState(false);
   useEffect(() => {
-    const pl = players.map((obj) => ({
+    let pl = players.map((obj) => ({
       ...obj,
       isCaptain: false,
       isViceCaptain: false,
     }));
     setSelectedPlayers([...pl]);
-  }, [players]);
-  console.log(selectedPlayers, 'select');
+  }, []);
+  console.log(selectedPlayers, "select");
   const handleCaptain = (i) => {
-    const op = players.map((p) => {
+    let op = players.map((p) => {
       p.isCaptain = false;
       return p;
     });
     setCaptainId(i);
-    const po = op.map((p) => {
+    let po = op.map((p) => {
       if (p.playerId === i) {
         p.isCaptain = true;
       }
       return p;
     });
-    console.log('clicked', po);
+    console.log("clicked", po);
     setSelectedPlayers([...po]);
   };
 
   const handleViceCaptain = (i) => {
-    const op = players.map((p) => {
+    let op = players.map((p) => {
       p.isViceCaptain = false;
       return p;
     });
     setVicecaptainId(i);
-    const po = op.map((p) => {
+    let po = op.map((p) => {
       if (p.playerId === i) {
         p.isViceCaptain = true;
       }
@@ -187,57 +192,29 @@ export function Captain({ players, editMode, teamId }) {
     setSelectedPlayers([...po]);
   };
   const handleSave = async () => {
-    try {
-      setLoading(true);
-      console.log('clicked next');
-      const data = await API.post(`${URL}/saveteam/${id}`, {
-        players: selectedPlayers,
-        matchId: id,
-        userid: user._id,
-        captainId,
-        vicecaptainId,
-      });
-      setLoading(false);
-      setSave(true);
-      alert.success(data.data.message);
-      navigate(`/contests/${id}`);
-    } catch (error) {
-      alert.error(error.response.data.message);
-      navigate(`/contests/${id}`);
-    }
-  };
-
-  const handleUpdate = async () => {
-    try {
-      setLoading(true);
-      console.log('clicked next');
-      const data = await API.put(`${URL}/updateTeam/${teamId}`, {
-        players: selectedPlayers,
-        matchId: id,
-        userid: user._id,
-        captainId,
-        vicecaptainId,
-      });
-      setSave(true);
-      setLoading(false);
-      alert.success(data.data.message);
-      navigate(`/contests/${id}`);
-    } catch (error) {
-      alert.error(error.response.data.message);
-      navigate(`/contests/${id}`);
-    }
+    console.log("clicked next");
+    const data = await axios.post(`${URL}/saveteam/${id}`, {
+      players: selectedPlayers,
+      matchId: id,
+      userid: user._id,
+      captainId: captainId,
+      vicecaptainId: vicecaptainId,
+    });
+    setSave(true);
+    navigate(`/contests/${id}`)
   };
 
   function isCandVcselected(se) {
-    const a = se.find((s) => s.isCaptain === true);
-    const b = se.find((s) => s.isViceCaptain === true);
+    console.log("r", selectedPlayers);
+    let a = se.find((s) => s.isCaptain === true);
+    let b = se.find((s) => s.isViceCaptain === true);
+    console.log(a, b, a & b);
     return a && b;
   }
   return (
     <>
       {!save ? (
         <>
-          {loading && <Loader />}
           <Description>
             <h3>Choose your captain and vicecaptain</h3>
             <p>C gets 2x points, VC gets 1.5x points</p>
@@ -246,18 +223,18 @@ export function Captain({ players, editMode, teamId }) {
             {selectedPlayers.map((p) => (
               <Player>
                 <Name>
-                  <img src={`https://firebasestorage.googleapis.com/v0/b/dreamelevenclone.appspot.com/o/images%2F${p.playerId}.png?alt=media&token=4644f151-3dfd-4883-9398-4191bed34854`} alt="" />
-                  <Link to={`{/player/${p.playerId}`}>{p.playerName}</Link>
+                  <img src={p.image} alt="" />
+                  <h1>{p.playerName}</h1>
                 </Name>
                 <CaptainC
                   onClick={() => handleCaptain(p.playerId)}
-                  className={p.isCaptain ? 'captain' : 'notcaptain'}
+                  className={p.isCaptain ? "captain" : "notcaptain"}
                 >
                   c
                 </CaptainC>
                 <ViceCaptain
                   onClick={() => handleViceCaptain(p.playerId)}
-                  className={p.isViceCaptain ? 'captain' : 'notcaptain'}
+                  className={p.isViceCaptain ? "captain" : "notcaptain"}
                 >
                   vc
                 </ViceCaptain>
@@ -270,23 +247,13 @@ export function Captain({ players, editMode, teamId }) {
               Preview / Lineup
               <GroupsRoundedIcon />
             </PrevButton>
-            {editMode ? (
-              <NextButton
-                disabled={!isCandVcselected(selectedPlayers) || loading}
-                className={isCandVcselected || !loading ? 'selectedc' : 'not'}
-                onClick={() => handleUpdate()}
-              >
-                save
-              </NextButton>
-            ) : (
-              <NextButton
-                disabled={!isCandVcselected(selectedPlayers) || loading}
-                className={isCandVcselected || !loading ? 'selectedc' : 'not'}
-                onClick={() => handleSave()}
-              >
-                save
-              </NextButton>
-            )}
+            <NextButton
+              disabled={!isCandVcselected(selectedPlayers)}
+              className={isCandVcselected ? "selectedc" : "not"}
+              onClick={() => handleSave()}
+            >
+              save
+            </NextButton>
           </NextButtonContainer>
         </>
       ) : (
@@ -294,6 +261,6 @@ export function Captain({ players, editMode, teamId }) {
       )}
     </>
   );
-}
+};
 
 export default Captain;
